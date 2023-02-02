@@ -1,4 +1,4 @@
-import java.io.File;
+
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
@@ -119,6 +119,7 @@ public class Game {
             resultSet = statement.executeQuery(sqlCountQuestions);
             resultSet.next();
             amountOfQuestions = resultSet.getInt("amount");
+            System.out.println(amountOfQuestions);
 
             String sqlSelectOneQuestion = "SELECT * FROM millionaires.questions WHERE id=?;";
             preparedStatement = connection.prepareStatement(sqlSelectOneQuestion);
