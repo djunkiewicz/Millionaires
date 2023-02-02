@@ -1,6 +1,0 @@
-Który z poniższych sąsiaduje z miesiącami, z których jeden ma 30, a drugi 31 dni?
-styczeń
-kwiecień
-sierpień
-listopad
-c

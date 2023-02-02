@@ -1,6 +1,0 @@
-Figura retoryczna, która polega na opuszczeniu elementu zdania ze względu na jego kontekst, to...
-prostokąt
-trójkąt
-trapez
-elipsa
-d
