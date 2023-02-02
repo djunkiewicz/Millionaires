@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.sql.*;
 import java.util.*;
 
 public class Game {
@@ -101,49 +102,62 @@ public class Game {
     //////////////////////////////////////////////////////////// END
 
     public void downloadQuestions() {
-        // poniższa funkcja losuje 10 ścieżek z katalogu z pytaniami i przepisuje
-        // ich tresci pytań wraz z odpowiedziami do listy pytań bedącej polem klasy Game
-
-        //zmienne co całej metody
-        Scanner scanner;
+        String dbURL = "jdbc:mysql://localhost:3306/millionaires";
+        String user = "root";
+        String password = "jnsp1";
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
         Question downloadingQuestion;
+        int amountOfQuestions = 0;
+        try {
+            connection = Database.getConnection(dbURL,user,password);
+            statement = connection.createStatement();
+            String sqlCountQuestions = "SELECT COUNT(question) AS amount FROM millionaires.questions;";
 
-        // sprawdzanie ile pytań jest w folderze
-        File file = new File("questions");
-        File currentFile;
-        File[] listQuestionFiles = file.listFiles();
-        int size = listQuestionFiles.length;
+            resultSet = statement.executeQuery(sqlCountQuestions);
+            resultSet.next();
+            amountOfQuestions = resultSet.getInt("amount");
 
-        if (size > 11) {
-            // losowanie 11 ze wszystkich z katalogu - START
-            List<Integer> numbersOfFiles = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                numbersOfFiles.add(i);
-            }
-            Collections.shuffle(numbersOfFiles);
-            // losowanie 11 ze wszystkich z katalogu - KONIEC
+            String sqlSelectOneQuestion = "SELECT * FROM millionaires.questions WHERE id=?;";
+            preparedStatement = connection.prepareStatement(sqlSelectOneQuestion);
 
-            // odczytanie 11 plików i zapisanie ich do listy pytań - START
-            for (int i = 0; i < 11; i++) {
-                currentFile = listQuestionFiles[numbersOfFiles.get(i)];
-                try {
-                    downloadingQuestion = new Question();
-                    scanner = new Scanner(currentFile);
-                    downloadingQuestion.question = scanner.nextLine();
-                    downloadingQuestion.answerA = scanner.nextLine();
-                    downloadingQuestion.answerB = scanner.nextLine();
-                    downloadingQuestion.answerC = scanner.nextLine();
-                    downloadingQuestion.answerD = scanner.nextLine();
-                    downloadingQuestion.correctAnswer = scanner.nextLine();
-                    questionList.add(downloadingQuestion);
-                    scanner.close();
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
+            if (amountOfQuestions > 11) {
+                List<Integer> drawnIndices = new ArrayList<>();
+                for (int i = 0; i < amountOfQuestions; i++) {
+                    drawnIndices.add(i+1);
                 }
+                Collections.shuffle(drawnIndices);
+                for (int i = 0; i < 11; i++) {
+
+                        preparedStatement.setInt(1,drawnIndices.get(i));
+                        resultSet = preparedStatement.executeQuery();
+                        resultSet.next();
+                        
+                        downloadingQuestion = new Question();
+                        downloadingQuestion.question = resultSet.getString("question");
+                        downloadingQuestion.answerA = resultSet.getString("answer_a");
+                        downloadingQuestion.answerB = resultSet.getString("answer_b");
+                        downloadingQuestion.answerC = resultSet.getString("answer_c");
+                        downloadingQuestion.answerD = resultSet.getString("answer_d");
+                        downloadingQuestion.correctAnswer = resultSet.getString("correct_answer");
+
+                        questionList.add(downloadingQuestion);
+                }
+                isAmountOfQuestionsOk = true;
+            } else {
+                isAmountOfQuestionsOk = false;
             }
-            isAmountOfQuestionsOk = true;
-        } else {
-            isAmountOfQuestionsOk = false;
+            //////////////////////////END
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        } finally {
+            Database.closeResultSet(resultSet);
+            Database.closeStatement(statement);
+            Database.closeStatement(preparedStatement);
+            Database.closeConnection(connection);
         }
     }
 
