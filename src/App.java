@@ -1,4 +1,4 @@
-import javax.swing.text.html.StyleSheet;
+
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -23,7 +23,7 @@ public class App {
                     game.run();}
                 case "2" -> {cls();
                     showRules();}
-                case "3" -> {shouldContinue = false;}
+                case "3" -> shouldContinue = false;
                 default -> msgArg = "bad input";
             }
         }
@@ -66,6 +66,6 @@ public class App {
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             else
                 Runtime.getRuntime().exec("clear");
-        } catch (IOException | InterruptedException ex) {}
+        } catch (IOException | InterruptedException ignored) {}
     }
 }
