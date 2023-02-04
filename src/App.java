@@ -48,7 +48,7 @@ public class App {
 
     public void showMessages(String msgArg) {
         if (msgArg.equals("ok")){
-            System.out.println("No messages and alerts");
+            System.out.println("No messages and alerts.");
             System.out.println("\n");
         } else if (msgArg.equals("bad input")) {
             System.out.println("Invalid input parameter used.");

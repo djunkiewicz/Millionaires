@@ -91,7 +91,7 @@ public class Game {
             }
         } else {
             cls();
-            System.out.println("At least 12 questions were not found in the database.");
+            System.out.println("At least 12 questions weren't found in the database.");
             System.out.println("Game cannot start.");
             scanner.nextLine();
         }
