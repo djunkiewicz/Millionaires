@@ -3,21 +3,20 @@ import java.io.IOException;
 import java.util.*;
 
 public class Game {
-    Scanner scanner;
-    boolean isAmountOfQuestionsOk;
-    String playerName;
-    String userChoice;
-    boolean shouldContinue;
-    Question currentQuestion;
-    List<Question> questionList;
-    HashMap<Integer, Integer> rateValues;
-    int numberOfQuestions;
-    List<String> lifebuoys = new ArrayList<>();
-    boolean isAvailableLifebuoy1;
-    boolean isAvailableLifebuoy2;
-    boolean isAvailableLifebuoy3;
-    int currentWin;
-    String msgArg;
+    private final Scanner scanner;
+    private boolean isAmountOfQuestionsOk;
+    private String playerName;
+    private boolean shouldContinue;
+    private Question currentQuestion;
+    private final List<Question> questionList;
+    private final HashMap<Integer, Integer> rateValues;
+    private int numberOfQuestions;
+    private final List<String> lifebuoys = new ArrayList<>();
+    private boolean isAvailableLifebuoy1;
+    private boolean isAvailableLifebuoy2;
+    private boolean isAvailableLifebuoy3;
+    private int currentWin;
+    private String msgArg;
 
     public Game() {
         cls();
@@ -59,7 +58,7 @@ public class Game {
                 currentQuestion = questionList.get(numberOfQuestions - 1);
                 showMessages(msgArg);
                 showGameScreen();
-                userChoice = scanner.nextLine();
+                String userChoice = scanner.nextLine();
                 switch (userChoice) {
                     case "a" -> answeredQuestion("a");
                     case "b" -> answeredQuestion("b");
