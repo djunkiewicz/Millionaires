@@ -1,12 +1,10 @@
-import javax.swing.text.html.StyleSheet;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class App {
-    Scanner scanner;
-    String userChoice;
-    boolean shouldContinue = true;
-    String msgArg;
+    private final Scanner scanner;
+    private boolean shouldContinue = true;
+    private String msgArg;
     public App() {
         scanner = new Scanner(System.in);
         msgArg = "ok";
@@ -16,14 +14,14 @@ public class App {
             cls();
             showMessages(msgArg);
             showMenu();
-            userChoice = scanner.nextLine();
+            String userChoice = scanner.nextLine();
             switch (userChoice){
                 case "1" -> {cls();
                     Game game = new Game();
                     game.run();}
                 case "2" -> {cls();
                     showRules();}
-                case "3" -> {shouldContinue = false;}
+                case "3" -> shouldContinue = false;
                 default -> msgArg = "bad input";
             }
         }
@@ -66,6 +64,6 @@ public class App {
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             else
                 Runtime.getRuntime().exec("clear");
-        } catch (IOException | InterruptedException ex) {}
+        } catch (IOException | InterruptedException ignored) {}
     }
 }

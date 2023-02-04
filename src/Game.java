@@ -4,21 +4,20 @@ import java.sql.*;
 import java.util.*;
 
 public class Game {
-    Scanner scanner;
-    boolean isAmountOfQuestionsOk;
-    String playerName;
-    String userChoice;
-    boolean shouldContinue;
-    Question currentQuestion;
-    List<Question> questionList;
-    HashMap<Integer, Integer> rateValues;
-    int numberOfQuestions;
-    List<String> lifebuoys = new ArrayList<>();
-    boolean isAvailableLifebuoy1;
-    boolean isAvailableLifebuoy2;
-    boolean isAvailableLifebuoy3;
-    int currentWin;
-    String msgArg;
+    private final Scanner scanner;
+    private boolean isAmountOfQuestionsOk;
+    private String playerName;
+    private boolean shouldContinue;
+    private Question currentQuestion;
+    private final List<Question> questionList;
+    private final HashMap<Integer, Integer> rateValues;
+    private int numberOfQuestions;
+    private final List<String> lifebuoys = new ArrayList<>();
+    private boolean isAvailableLifebuoy1;
+    private boolean isAvailableLifebuoy2;
+    private boolean isAvailableLifebuoy3;
+    private int currentWin;
+    private String msgArg;
 
     public Game() {
         cls();
@@ -54,13 +53,13 @@ public class Game {
         initialScreen();
         downloadQuestions();
         shuffleAnswers();
-        if (isAmountOfQuestionsOk == true) {
+        if (isAmountOfQuestionsOk) {
             while (shouldContinue) {
                 cls();
                 currentQuestion = questionList.get(numberOfQuestions - 1);
                 showMessages(msgArg);
                 showGameScreen();
-                userChoice = scanner.nextLine();
+                String userChoice = scanner.nextLine();
                 switch (userChoice) {
                     case "a" -> answeredQuestion("a");
                     case "b" -> answeredQuestion("b");
@@ -110,9 +109,9 @@ public class Game {
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
         Question downloadingQuestion;
-        int amountOfQuestions = 0;
+        int amountOfQuestions;
         try {
-            connection = Database.getConnection(dbURL,user,password);
+            connection = Database.getConnection(dbURL, user, password);
             statement = connection.createStatement();
             String sqlCountQuestions = "SELECT COUNT(question) AS amount FROM millionaires.questions;";
 
@@ -127,24 +126,24 @@ public class Game {
             if (amountOfQuestions > 11) {
                 List<Integer> drawnIndices = new ArrayList<>();
                 for (int i = 0; i < amountOfQuestions; i++) {
-                    drawnIndices.add(i+1);
+                    drawnIndices.add(i + 1);
                 }
                 Collections.shuffle(drawnIndices);
                 for (int i = 0; i < 11; i++) {
 
-                        preparedStatement.setInt(1,drawnIndices.get(i));
-                        resultSet = preparedStatement.executeQuery();
-                        resultSet.next();
-                        
-                        downloadingQuestion = new Question();
-                        downloadingQuestion.question = resultSet.getString("question");
-                        downloadingQuestion.answerA = resultSet.getString("answer_a");
-                        downloadingQuestion.answerB = resultSet.getString("answer_b");
-                        downloadingQuestion.answerC = resultSet.getString("answer_c");
-                        downloadingQuestion.answerD = resultSet.getString("answer_d");
-                        downloadingQuestion.correctAnswer = resultSet.getString("correct_answer");
+                    preparedStatement.setInt(1, drawnIndices.get(i));
+                    resultSet = preparedStatement.executeQuery();
+                    resultSet.next();
 
-                        questionList.add(downloadingQuestion);
+                    downloadingQuestion = new Question();
+                    downloadingQuestion.setQuestion(resultSet.getString("question"));
+                    downloadingQuestion.setAnswerA(resultSet.getString("answer_a"));
+                    downloadingQuestion.setAnswerB(resultSet.getString("answer_b"));
+                    downloadingQuestion.setAnswerC(resultSet.getString("answer_c"));
+                    downloadingQuestion.setAnswerD(resultSet.getString("answer_d"));
+                    downloadingQuestion.setCorrectAnswer(resultSet.getString("correct_answer"));
+
+                    questionList.add(downloadingQuestion);
                 }
                 isAmountOfQuestionsOk = true;
             } else {
@@ -152,7 +151,7 @@ public class Game {
             }
             //////////////////////////END
 
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             Database.closeResultSet(resultSet);
@@ -164,15 +163,14 @@ public class Game {
 
     public void showGameScreen() {
         System.out.println("Question for " + rateValues.get(numberOfQuestions) + "$");
-        System.out.println(numberOfQuestions + ". " + currentQuestion.question);
-        System.out.println("a) " + currentQuestion.answerA);
-        System.out.println("b) " + currentQuestion.answerB);
-        System.out.println("c) " + currentQuestion.answerC);
-        System.out.println("d) " + currentQuestion.answerD);
+        System.out.println(numberOfQuestions + ". " + currentQuestion.getQuestion());
+        System.out.println("a) " + currentQuestion.getAnswerA());
+        System.out.println("b) " + currentQuestion.getAnswerB());
+        System.out.println("c) " + currentQuestion.getAnswerC());
+        System.out.println("d) " + currentQuestion.getAnswerD());
         System.out.println("\nLifebuoys available:");
-        int size = lifebuoys.size();
-        for (int i = 0; i < size; i++) {
-            System.out.print(lifebuoys.get(i));
+        for (String lifebuoy : lifebuoys) {
+            System.out.print(lifebuoy);
             System.out.print("  ");
         }
         System.out.println("\n\n1. Use 50/50 lifebuoy.");
@@ -201,7 +199,7 @@ public class Game {
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1" -> {
-                    String apartFrom = currentQuestion.correctAnswer;
+                    String apartFrom = currentQuestion.getCorrectAnswer();
                     List<String> abcd = new ArrayList<>();
                     abcd.add("a");
                     abcd.add("b");
@@ -215,23 +213,19 @@ public class Game {
                     }
                     Collections.shuffle(abcd);
                     for (int i = 0; i < 2; i++) {
-                        if (abcd.get(i).equals("a")) {
-                            currentQuestion.answerA = "";
-                        } else if (abcd.get(i).equals("b")) {
-                            currentQuestion.answerB = "";
-                        } else if (abcd.get(i).equals("c")) {
-                            currentQuestion.answerC = "";
-                        } else if (abcd.get(i).equals("d")) {
-                            currentQuestion.answerD = "";
+                        switch (abcd.get(i)) {
+                            case "a" -> currentQuestion.setAnswerA("");
+                            case "b" -> currentQuestion.setAnswerB("");
+                            case "c" -> currentQuestion.setAnswerC("");
+                            case "d" -> currentQuestion.setAnswerD("");
                         }
                     }
                     isAvailableLifebuoy1 = false;
                     lifebuoys.remove("50/50");
                     shouldContinue = false;
                 }
-                case "2" -> {
-                    shouldContinue = false;
-                }
+                case "2" -> shouldContinue = false;
+
             }
         }
     }
@@ -246,20 +240,18 @@ public class Game {
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1" -> {
-                    questionList.get(numberOfQuestions - 1).question = questionList.get(10).question;
-                    questionList.get(numberOfQuestions - 1).answerA = questionList.get(10).answerA;
-                    questionList.get(numberOfQuestions - 1).answerB = questionList.get(10).answerB;
-                    questionList.get(numberOfQuestions - 1).answerC = questionList.get(10).answerC;
-                    questionList.get(numberOfQuestions - 1).answerD = questionList.get(10).answerD;
-                    questionList.get(numberOfQuestions - 1).correctAnswer = questionList.get(10).correctAnswer;
+                    questionList.get(numberOfQuestions - 1).setQuestion(questionList.get(10).getQuestion());
+                    questionList.get(numberOfQuestions - 1).setAnswerA(questionList.get(10).getAnswerA());
+                    questionList.get(numberOfQuestions - 1).setAnswerB(questionList.get(10).getAnswerB());
+                    questionList.get(numberOfQuestions - 1).setAnswerC(questionList.get(10).getAnswerC());
+                    questionList.get(numberOfQuestions - 1).setAnswerD(questionList.get(10).getAnswerD());
+                    questionList.get(numberOfQuestions - 1).setCorrectAnswer(questionList.get(10).getCorrectAnswer());
 
                     isAvailableLifebuoy2 = false;
                     lifebuoys.remove("sw.");
                     shouldContinue = false;
                 }
-                case "2" -> {
-                    shouldContinue = false;
-                }
+                case "2" -> shouldContinue = false;
             }
         }
     }
@@ -286,14 +278,14 @@ public class Game {
 
                     List<Integer> incorrectPercentage = new ArrayList<>();
                     for (int i = 0; i < 2; i++) {
-                        Integer temp = random.nextInt(percentageAmount + 1);
+                        int temp = random.nextInt(percentageAmount + 1);
                         percentageAmount -= temp;
                         incorrectPercentage.add(temp);
                     }
                     incorrectPercentage.add(percentageAmount);
                     Collections.shuffle(incorrectPercentage);
 
-                    switch (currentQuestion.correctAnswer) {
+                    switch (currentQuestion.getCorrectAnswer()) {
                         case "a" -> {
                             aPercentage = correctPercentage;
                             bPercentage = incorrectPercentage.get(0);
@@ -323,36 +315,36 @@ public class Game {
                     //wyświetlenie histogramu
                     cls();
                     System.out.println("Question for " + rateValues.get(numberOfQuestions) + "$");
-                    System.out.println(numberOfQuestions + ". " + currentQuestion.question);
-                    System.out.println("a) " + currentQuestion.answerA);
-                    System.out.println("b) " + currentQuestion.answerB);
-                    System.out.println("c) " + currentQuestion.answerC);
-                    System.out.println("d) " + currentQuestion.answerD);
+                    System.out.println(numberOfQuestions + ". " + currentQuestion.getQuestion());
+                    System.out.println("a) " + currentQuestion.getAnswerA());
+                    System.out.println("b) " + currentQuestion.getAnswerB());
+                    System.out.println("c) " + currentQuestion.getAnswerC());
+                    System.out.println("d) " + currentQuestion.getAnswerD());
                     System.out.println("\nAudience vote:");
 
                     System.out.print("a -> ");
-                    for (int i=0; i<aPercentage; i++) {
+                    for (int i = 0; i < aPercentage; i++) {
                         System.out.print("|");
                     }
-                    System.out.print("  "+aPercentage+"%\n");
+                    System.out.print("  " + aPercentage + "%\n");
 
                     System.out.print("b -> ");
-                    for (int i=0; i<bPercentage; i++) {
+                    for (int i = 0; i < bPercentage; i++) {
                         System.out.print("|");
                     }
-                    System.out.print("  "+bPercentage+"%\n");
+                    System.out.print("  " + bPercentage + "%\n");
 
                     System.out.print("c -> ");
-                    for (int i=0; i<cPercentage; i++) {
+                    for (int i = 0; i < cPercentage; i++) {
                         System.out.print("|");
                     }
-                    System.out.print("  "+cPercentage+"%\n");
+                    System.out.print("  " + cPercentage + "%\n");
 
                     System.out.print("d -> ");
-                    for (int i=0; i<dPercentage; i++) {
+                    for (int i = 0; i < dPercentage; i++) {
                         System.out.print("|");
                     }
-                    System.out.print("  "+dPercentage+"%");
+                    System.out.print("  " + dPercentage + "%");
 
                     isAvailableLifebuoy3 = false;
                     lifebuoys.remove("?");
@@ -360,9 +352,7 @@ public class Game {
 
                     scanner.nextLine();
                 }
-                case "2" -> {
-                    shouldContinue = false;
-                }
+                case "2" -> shouldContinue = false;
             }
         }
     }
@@ -387,18 +377,23 @@ public class Game {
     }
 
     public void showMessages(String msgArg) {
-        if (msgArg.equals("ok")) {
-            System.out.println("No messages and alerts");
-            System.out.println("\n");
-        } else if (msgArg.equals("bad input")) {
-            System.out.println("Invalid input parameter used.");
-            System.out.println("\n");
-        } else if (msgArg.equals("empty question")) {
-            System.out.println("The selected answer has been rejected.");
-            System.out.println("\n");
-        } else if (msgArg.equals("no lifebuoy")) {
-            System.out.println("This lifebuoy has been already used.");
-            System.out.println("\n");
+        switch (msgArg) {
+            case "ok" -> {
+                System.out.println("No messages and alerts");
+                System.out.println("\n");
+            }
+            case "bad input" -> {
+                System.out.println("Invalid input parameter used.");
+                System.out.println("\n");
+            }
+            case "empty question" -> {
+                System.out.println("The selected answer has been rejected.");
+                System.out.println("\n");
+            }
+            case "no lifebuoy" -> {
+                System.out.println("This lifebuoy has been already used.");
+                System.out.println("\n");
+            }
         }
         this.msgArg = "ok";
     }
@@ -407,7 +402,7 @@ public class Game {
         if (isAnswerEmpty(answer)) {
             msgArg = "empty question";
         } else {
-            if (answer.equals(currentQuestion.correctAnswer)) {
+            if (answer.equals(currentQuestion.getCorrectAnswer())) {
                 cls();
                 //checking win condition
                 if (numberOfQuestions == 10) {
@@ -420,7 +415,7 @@ public class Game {
                     currentWin = rateValues.get(numberOfQuestions);
                     numberOfQuestions += 1;
                     System.out.println("Good job! That's a good answer!");
-                    System.out.println("Your current win is: " + currentWin+"$");
+                    System.out.println("Your current win is: " + currentWin + "$");
                     scanner.nextLine();
                 }
             } else {
@@ -433,13 +428,13 @@ public class Game {
                     currentWin = 0;
                 }
                 System.out.println("Unfortunately this is not good answer for question:");
-                System.out.println(currentQuestion.question);
-                System.out.print("Correct answer is "+currentQuestion.correctAnswer+") ");
-                switch (currentQuestion.correctAnswer) {
-                    case "a" -> System.out.print(currentQuestion.answerA);
-                    case "b" -> System.out.print(currentQuestion.answerB);
-                    case "c" -> System.out.print(currentQuestion.answerC);
-                    case "d" -> System.out.print(currentQuestion.answerD);
+                System.out.println(currentQuestion.getQuestion());
+                System.out.print("Correct answer is " + currentQuestion.getCorrectAnswer() + ") ");
+                switch (currentQuestion.getCorrectAnswer()) {
+                    case "a" -> System.out.print(currentQuestion.getAnswerA());
+                    case "b" -> System.out.print(currentQuestion.getAnswerB());
+                    case "c" -> System.out.print(currentQuestion.getAnswerC());
+                    case "d" -> System.out.print(currentQuestion.getAnswerD());
                 }
                 System.out.println("\n");
                 System.out.println("Game over, you won: " + currentWin + "$");
@@ -454,22 +449,22 @@ public class Game {
         boolean temp = false;
         switch (answer) {
             case "a" -> {
-                if (currentQuestion.answerA.equals("")) {
+                if (currentQuestion.getAnswerA().equals("")) {
                     temp = true;
                 }
             }
             case "b" -> {
-                if (currentQuestion.answerB.equals("")) {
+                if (currentQuestion.getAnswerB().equals("")) {
                     temp = true;
                 }
             }
             case "c" -> {
-                if (currentQuestion.answerC.equals("")) {
+                if (currentQuestion.getAnswerC().equals("")) {
                     temp = true;
                 }
             }
             case "d" -> {
-                if (currentQuestion.answerD.equals("")) {
+                if (currentQuestion.getAnswerD().equals("")) {
                     temp = true;
                 }
             }
@@ -481,34 +476,34 @@ public class Game {
         String correct = "";
         List<String> bufor = new ArrayList<>();
 
-        for (Question question: questionList) {
-            switch (question.correctAnswer) {
-                case "a" -> correct = question.answerA;
-                case "b" -> correct = question.answerB;
-                case "c" -> correct = question.answerC;
-                case "d" -> correct = question.answerD;
+        for (Question question : questionList) {
+            switch (question.getCorrectAnswer()) {
+                case "a" -> correct = question.getAnswerA();
+                case "b" -> correct = question.getAnswerB();
+                case "c" -> correct = question.getAnswerC();
+                case "d" -> correct = question.getAnswerD();
             }
-            bufor.add(question.answerA);
-            bufor.add(question.answerB);
-            bufor.add(question.answerC);
-            bufor.add(question.answerD);
+            bufor.add(question.getAnswerA());
+            bufor.add(question.getAnswerB());
+            bufor.add(question.getAnswerC());
+            bufor.add(question.getAnswerD());
 
             Collections.shuffle(bufor);
 
             if (correct.equals(bufor.get(0))) {
-                question.correctAnswer = "a";
+                question.setCorrectAnswer("a");
             } else if (correct.equals(bufor.get(1))) {
-                question.correctAnswer = "b";
+                question.setCorrectAnswer("b");
             } else if (correct.equals(bufor.get(2))) {
-                question.correctAnswer = "c";
+                question.setCorrectAnswer("c");
             } else if (correct.equals(bufor.get(3))) {
-                question.correctAnswer = "d";
+                question.setCorrectAnswer("d");
             }
 
-            question.answerA = bufor.get(0);
-            question.answerB = bufor.get(1);
-            question.answerC = bufor.get(2);
-            question.answerD = bufor.get(3);
+            question.setAnswerA(bufor.get(0));
+            question.setAnswerB(bufor.get(1));
+            question.setAnswerC(bufor.get(2));
+            question.setAnswerD(bufor.get(3));
 
             bufor.clear();
         }
@@ -521,7 +516,7 @@ public class Game {
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             else
                 Runtime.getRuntime().exec("clear");
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException | InterruptedException ignored) {
         }
     }
 }
